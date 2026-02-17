@@ -5,11 +5,12 @@ from io import BytesIO
 st.set_page_config(page_title="Murlidhar PDF Tool", layout="wide")
 st.title("🔥 Murlidhar Academy PDF Marketing Tool")
 
-uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
+uploaded_file = st.file_uploader("Upload PDF (A4 Recommended)", type=["pdf"])
 
 # ---------------- CONFIG ----------------
 DEFAULT_FONT_SIZE = 9
-DEFAULT_MARGIN_INCH = 0.2
+DEFAULT_HEADER_MARGIN = 0.02
+DEFAULT_FOOTER_MARGIN = 0.00
 
 def inch_to_point(inch):
     return inch * 72
@@ -47,13 +48,13 @@ st.subheader("📝 Header Settings")
 
 header_text = st.text_input(
     "Header Text",
-    value="FOR MORE UPDATES AND STUDY MATERIALS, JOIN MURLIDHAR ACADEMY WHATSAPP GROUP"
+    value="CLICK HERE FOR MORE UPDATES AND STUDY MATERIALS | JOIN MURLIDHAR ACADEMY WHATSAPP GROUP"
 )
 
 header_alignment = st.selectbox("Header Alignment", ["left", "center", "right"], index=1)
 header_font_size = st.number_input("Header Font Size", 6, 50, DEFAULT_FONT_SIZE)
 header_color = st.color_picker("Header Color", "#008000")
-header_margin = st.number_input("Header Top Margin (inch)", 0.0, 2.0, DEFAULT_MARGIN_INCH)
+header_margin = st.number_input("Header Top Margin (inch)", 0.0, 2.0, DEFAULT_HEADER_MARGIN)
 
 upper_half_link = st.text_input(
     "Upper Half Page Link",
@@ -65,13 +66,13 @@ st.subheader("📝 Footer Settings")
 
 footer_text = st.text_input(
     "Footer Text",
-    value="FOR MORE UPDATES AND STUDY MATERIALS, JOIN MURLIDHAR ACADEMY TELEGRAM CHANNEL"
+    value="CLICK HERE FOR MORE UPDATES AND STUDY MATERIALS | JOIN MURLIDHAR ACADEMY TELEGRAM CHANNEL"
 )
 
 footer_alignment = st.selectbox("Footer Alignment", ["left", "center", "right"], index=1)
 footer_font_size = st.number_input("Footer Font Size", 6, 50, DEFAULT_FONT_SIZE)
 footer_color = st.color_picker("Footer Color", "#0000FF")
-footer_margin = st.number_input("Footer Bottom Margin (inch)", 0.0, 2.0, DEFAULT_MARGIN_INCH)
+footer_margin = st.number_input("Footer Bottom Margin (inch)", 0.0, 2.0, DEFAULT_FOOTER_MARGIN)
 
 bottom_half_link = st.text_input(
     "Bottom Half Page Link",
@@ -122,7 +123,7 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
         # HEADER
         if header_text.strip():
             y = inch_to_point(header_margin)
-            header_rect = fitz.Rect(0, y, width, y + 25)
+            header_rect = fitz.Rect(0, y, width, y + 20)
 
             align_value = 1 if header_alignment == "center" else 2 if header_alignment == "right" else 0
 
@@ -134,10 +135,10 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
                 align=align_value
             )
 
-        # FOOTER
+        # FOOTER (force bottom)
         if footer_text.strip():
-            y = height - inch_to_point(footer_margin)
-            footer_rect = fitz.Rect(0, y - 20, width, y + 10)
+            y = height - 5  # force near bottom edge
+            footer_rect = fitz.Rect(0, y - 15, width, y)
 
             align_value = 1 if footer_alignment == "center" else 2 if footer_alignment == "right" else 0
 
@@ -158,6 +159,6 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
     st.download_button(
         "📥 Download Modified PDF",
         data=output.getvalue(),
-        file_name="Murlidhar_Modified_PDF.pdf",
+        file_name=uploaded_file.name,   # original name retained
         mime="application/pdf"
     )
