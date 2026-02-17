@@ -129,7 +129,13 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
         # -------- HEADER --------
         if header_text.strip():
             y = inch_to_point(header_margin)
-            header_rect = fitz.Rect(0, y, width, y + 20)
+
+            header_rect = fitz.Rect(
+                0,
+                y,
+                width,
+                y + header_font_size + 6
+            )
 
             align_value = 1 if header_alignment == "center" else 2 if header_alignment == "right" else 0
 
@@ -141,29 +147,29 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
                 align=align_value
             )
 
-        # -------- FOOTER (VISIBLE FIXED) --------
+        # -------- FOOTER (TRUE BOTTOM FIX) --------
         if footer_text.strip():
 
             bottom_margin_points = inch_to_point(footer_margin)
 
-            y_top = height - bottom_margin_points - 20
-            y_bottom = height - bottom_margin_points
+            # Baseline calculation
+            y = height - bottom_margin_points - 2
 
-            footer_rect = fitz.Rect(
-                0,
-                y_top,
-                width,
-                y_bottom
-            )
+            # Manual alignment
+            if footer_alignment == "center":
+                text_width = fitz.get_text_length(footer_text, fontsize=footer_font_size)
+                x = (width - text_width) / 2
+            elif footer_alignment == "right":
+                text_width = fitz.get_text_length(footer_text, fontsize=footer_font_size)
+                x = width - text_width - 5
+            else:
+                x = 5
 
-            align_value = 1 if footer_alignment == "center" else 2 if footer_alignment == "right" else 0
-
-            page.insert_textbox(
-                footer_rect,
+            page.insert_text(
+                (x, y),
                 footer_text,
                 fontsize=footer_font_size,
-                color=footer_rgb,
-                align=align_value
+                color=footer_rgb
             )
 
     output = BytesIO()
