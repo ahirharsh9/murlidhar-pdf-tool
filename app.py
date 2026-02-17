@@ -10,7 +10,7 @@ uploaded_file = st.file_uploader("Upload PDF (A4 Recommended)", type=["pdf"])
 # ---------------- CONFIG ----------------
 DEFAULT_FONT_SIZE = 9
 DEFAULT_HEADER_MARGIN = 0.02
-DEFAULT_FOOTER_MARGIN = 0.00
+DEFAULT_FOOTER_MARGIN = 0.02
 
 def inch_to_point(inch):
     return inch * 72
