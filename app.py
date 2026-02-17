@@ -106,61 +106,53 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
 
         # -------- LINKS --------
         if full_page_link.strip():
-            page.insert_link({
-                "kind": fitz.LINK_URI,
-                "from": fitz.Rect(0, 0, width, height),
-                "uri": full_page_link
-            })
+            page.insert_link({"kind": fitz.LINK_URI,
+                              "from": fitz.Rect(0, 0, width, height),
+                              "uri": full_page_link})
 
         if upper_half_link.strip():
-            page.insert_link({
-                "kind": fitz.LINK_URI,
-                "from": fitz.Rect(0, 0, width, height/2),
-                "uri": upper_half_link
-            })
+            page.insert_link({"kind": fitz.LINK_URI,
+                              "from": fitz.Rect(0, 0, width, height/2),
+                              "uri": upper_half_link})
 
         if bottom_half_link.strip():
-            page.insert_link({
-                "kind": fitz.LINK_URI,
-                "from": fitz.Rect(0, height/2, width, height),
-                "uri": bottom_half_link
-            })
+            page.insert_link({"kind": fitz.LINK_URI,
+                              "from": fitz.Rect(0, height/2, width, height),
+                              "uri": bottom_half_link})
 
-        # -------- HEADER --------
+        # -------- HEADER (manual alignment) --------
         if header_text.strip():
-            y = inch_to_point(header_margin)
 
-            header_rect = fitz.Rect(
-                0,
-                y,
-                width,
-                y + header_font_size + 6
-            )
+            top_margin_points = inch_to_point(header_margin)
+            y = top_margin_points + header_font_size
 
-            align_value = 1 if header_alignment == "center" else 2 if header_alignment == "right" else 0
+            text_width = fitz.get_text_length(header_text, fontsize=header_font_size)
 
-            page.insert_textbox(
-                header_rect,
+            if header_alignment == "center":
+                x = (width - text_width) / 2
+            elif header_alignment == "right":
+                x = width - text_width - 5
+            else:
+                x = 5
+
+            page.insert_text(
+                (x, y),
                 header_text,
                 fontsize=header_font_size,
-                color=header_rgb,
-                align=align_value
+                color=header_rgb
             )
 
-        # -------- FOOTER (TRUE BOTTOM FIX) --------
+        # -------- FOOTER (manual alignment) --------
         if footer_text.strip():
 
             bottom_margin_points = inch_to_point(footer_margin)
-
-            # Baseline calculation
             y = height - bottom_margin_points - 2
 
-            # Manual alignment
+            text_width = fitz.get_text_length(footer_text, fontsize=footer_font_size)
+
             if footer_alignment == "center":
-                text_width = fitz.get_text_length(footer_text, fontsize=footer_font_size)
                 x = (width - text_width) / 2
             elif footer_alignment == "right":
-                text_width = fitz.get_text_length(footer_text, fontsize=footer_font_size)
                 x = width - text_width - 5
             else:
                 x = 5
