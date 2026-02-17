@@ -18,16 +18,6 @@ def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
     return tuple(int(hex_color[i:i+2], 16)/255 for i in (0, 2, 4))
 
-def get_font(bold, italic):
-    if bold and italic:
-        return "helvbi"
-    elif bold:
-        return "helvb"
-    elif italic:
-        return "helvi"
-    else:
-        return "helv"
-
 def parse_page_range(range_text, total_pages):
     pages = set()
     parts = range_text.split(",")
@@ -65,14 +55,6 @@ header_font_size = st.number_input("Header Font Size", 6, 50, DEFAULT_FONT_SIZE)
 header_color = st.color_picker("Header Color", "#008000")
 header_margin = st.number_input("Header Top Margin (inch)", 0.0, 2.0, DEFAULT_MARGIN_INCH)
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    header_bold = st.checkbox("Header Bold")
-with col2:
-    header_italic = st.checkbox("Header Italic")
-with col3:
-    header_underline = st.checkbox("Header Underline")
-
 upper_half_link = st.text_input(
     "Upper Half Page Link",
     value="https://api.whatsapp.com/send?phone=917878186867&text=JOIN%20ME%20IN%20MURLIDHAR%20ACADEMY%20WHATSAPP%20GROUP"
@@ -90,14 +72,6 @@ footer_alignment = st.selectbox("Footer Alignment", ["left", "center", "right"],
 footer_font_size = st.number_input("Footer Font Size", 6, 50, DEFAULT_FONT_SIZE)
 footer_color = st.color_picker("Footer Color", "#0000FF")
 footer_margin = st.number_input("Footer Bottom Margin (inch)", 0.0, 2.0, DEFAULT_MARGIN_INCH)
-
-col4, col5, col6 = st.columns(3)
-with col4:
-    footer_bold = st.checkbox("Footer Bold")
-with col5:
-    footer_italic = st.checkbox("Footer Italic")
-with col6:
-    footer_underline = st.checkbox("Footer Underline")
 
 bottom_half_link = st.text_input(
     "Bottom Half Page Link",
@@ -129,34 +103,26 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
         width = page.rect.width
         height = page.rect.height
 
-        # -------- LINKS --------
+        # LINKS
         if full_page_link.strip():
-            page.insert_link({
-                "kind": fitz.LINK_URI,
-                "from": fitz.Rect(0, 0, width, height),
-                "uri": full_page_link
-            })
+            page.insert_link({"kind": fitz.LINK_URI,
+                              "from": fitz.Rect(0, 0, width, height),
+                              "uri": full_page_link})
 
         if upper_half_link.strip():
-            page.insert_link({
-                "kind": fitz.LINK_URI,
-                "from": fitz.Rect(0, 0, width, height/2),
-                "uri": upper_half_link
-            })
+            page.insert_link({"kind": fitz.LINK_URI,
+                              "from": fitz.Rect(0, 0, width, height/2),
+                              "uri": upper_half_link})
 
         if bottom_half_link.strip():
-            page.insert_link({
-                "kind": fitz.LINK_URI,
-                "from": fitz.Rect(0, height/2, width, height),
-                "uri": bottom_half_link
-            })
+            page.insert_link({"kind": fitz.LINK_URI,
+                              "from": fitz.Rect(0, height/2, width, height),
+                              "uri": bottom_half_link})
 
-        # -------- HEADER --------
+        # HEADER
         if header_text.strip():
             y = inch_to_point(header_margin)
-            fontname = get_font(header_bold, header_italic)
-
-            header_rect = fitz.Rect(0, y, width, y + 30)
+            header_rect = fitz.Rect(0, y, width, y + 25)
 
             align_value = 1 if header_alignment == "center" else 2 if header_alignment == "right" else 0
 
@@ -164,16 +130,13 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
                 header_rect,
                 header_text,
                 fontsize=header_font_size,
-                fontname=fontname,
                 color=header_rgb,
                 align=align_value
             )
 
-        # -------- FOOTER --------
+        # FOOTER
         if footer_text.strip():
             y = height - inch_to_point(footer_margin)
-            fontname = get_font(footer_bold, footer_italic)
-
             footer_rect = fitz.Rect(0, y - 20, width, y + 10)
 
             align_value = 1 if footer_alignment == "center" else 2 if footer_alignment == "right" else 0
@@ -182,7 +145,6 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
                 footer_rect,
                 footer_text,
                 fontsize=footer_font_size,
-                fontname=fontname,
                 color=footer_rgb,
                 align=align_value
             )
