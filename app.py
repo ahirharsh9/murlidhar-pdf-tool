@@ -104,23 +104,29 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
         width = page.rect.width
         height = page.rect.height
 
-        # LINKS
+        # -------- LINKS --------
         if full_page_link.strip():
-            page.insert_link({"kind": fitz.LINK_URI,
-                              "from": fitz.Rect(0, 0, width, height),
-                              "uri": full_page_link})
+            page.insert_link({
+                "kind": fitz.LINK_URI,
+                "from": fitz.Rect(0, 0, width, height),
+                "uri": full_page_link
+            })
 
         if upper_half_link.strip():
-            page.insert_link({"kind": fitz.LINK_URI,
-                              "from": fitz.Rect(0, 0, width, height/2),
-                              "uri": upper_half_link})
+            page.insert_link({
+                "kind": fitz.LINK_URI,
+                "from": fitz.Rect(0, 0, width, height/2),
+                "uri": upper_half_link
+            })
 
         if bottom_half_link.strip():
-            page.insert_link({"kind": fitz.LINK_URI,
-                              "from": fitz.Rect(0, height/2, width, height),
-                              "uri": bottom_half_link})
+            page.insert_link({
+                "kind": fitz.LINK_URI,
+                "from": fitz.Rect(0, height/2, width, height),
+                "uri": bottom_half_link
+            })
 
-        # HEADER
+        # -------- HEADER --------
         if header_text.strip():
             y = inch_to_point(header_margin)
             header_rect = fitz.Rect(0, y, width, y + 20)
@@ -135,10 +141,20 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
                 align=align_value
             )
 
-        # FOOTER (force bottom)
+        # -------- FOOTER (VISIBLE FIXED) --------
         if footer_text.strip():
-            y = height - 5  # force near bottom edge
-            footer_rect = fitz.Rect(0, y - 15, width, y)
+
+            bottom_margin_points = inch_to_point(footer_margin)
+
+            y_top = height - bottom_margin_points - 20
+            y_bottom = height - bottom_margin_points
+
+            footer_rect = fitz.Rect(
+                0,
+                y_top,
+                width,
+                y_bottom
+            )
 
             align_value = 1 if footer_alignment == "center" else 2 if footer_alignment == "right" else 0
 
@@ -159,6 +175,6 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
     st.download_button(
         "📥 Download Modified PDF",
         data=output.getvalue(),
-        file_name=uploaded_file.name,   # original name retained
+        file_name=uploaded_file.name,
         mime="application/pdf"
     )
