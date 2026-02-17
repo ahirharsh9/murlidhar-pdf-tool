@@ -42,6 +42,7 @@ def parse_page_range(range_text, total_pages):
 
 # ---------------- PAGE SELECTION ----------------
 st.subheader("📄 Page Selection")
+
 page_option = st.selectbox(
     "Apply Changes To",
     ["All Pages", "First Page Only", "Custom Page Range"]
@@ -128,46 +129,73 @@ if st.button("🚀 Generate Modified PDF") and uploaded_file:
         width = page.rect.width
         height = page.rect.height
 
-        # LINKS
+        # -------- LINKS --------
         if full_page_link.strip():
-            page.insert_link({"kind": fitz.LINK_URI, "from": fitz.Rect(0,0,width,height), "uri": full_page_link})
+            page.insert_link({
+                "kind": fitz.LINK_URI,
+                "from": fitz.Rect(0, 0, width, height),
+                "uri": full_page_link
+            })
 
         if upper_half_link.strip():
-            page.insert_link({"kind": fitz.LINK_URI, "from": fitz.Rect(0,0,width,height/2), "uri": upper_half_link})
+            page.insert_link({
+                "kind": fitz.LINK_URI,
+                "from": fitz.Rect(0, 0, width, height/2),
+                "uri": upper_half_link
+            })
 
         if bottom_half_link.strip():
-            page.insert_link({"kind": fitz.LINK_URI, "from": fitz.Rect(0,height/2,width,height), "uri": bottom_half_link})
+            page.insert_link({
+                "kind": fitz.LINK_URI,
+                "from": fitz.Rect(0, height/2, width, height),
+                "uri": bottom_half_link
+            })
 
-        # HEADER
+        # -------- HEADER --------
         if header_text.strip():
             y = inch_to_point(header_margin)
-            x = width/2 if header_alignment == "center" else 40 if header_alignment == "left" else width-40
             fontname = get_font(header_bold, header_italic)
 
-            page.insert_text((x,y), header_text,
-                             fontsize=header_font_size,
-                             fontname=fontname,
-                             color=header_rgb,
-                             align=1 if header_alignment=="center" else 0)
+            header_rect = fitz.Rect(0, y, width, y + 30)
 
-        # FOOTER
+            align_value = 1 if header_alignment == "center" else 2 if header_alignment == "right" else 0
+
+            page.insert_textbox(
+                header_rect,
+                header_text,
+                fontsize=header_font_size,
+                fontname=fontname,
+                color=header_rgb,
+                align=align_value
+            )
+
+        # -------- FOOTER --------
         if footer_text.strip():
             y = height - inch_to_point(footer_margin)
-            x = width/2 if footer_alignment == "center" else 40 if footer_alignment == "left" else width-40
             fontname = get_font(footer_bold, footer_italic)
 
-            page.insert_text((x,y), footer_text,
-                             fontsize=footer_font_size,
-                             fontname=fontname,
-                             color=footer_rgb,
-                             align=1 if footer_alignment=="center" else 0)
+            footer_rect = fitz.Rect(0, y - 20, width, y + 10)
+
+            align_value = 1 if footer_alignment == "center" else 2 if footer_alignment == "right" else 0
+
+            page.insert_textbox(
+                footer_rect,
+                footer_text,
+                fontsize=footer_font_size,
+                fontname=fontname,
+                color=footer_rgb,
+                align=align_value
+            )
 
     output = BytesIO()
     doc.save(output)
     doc.close()
 
     st.success("✅ PDF Modified Successfully!")
-    st.download_button("📥 Download Modified PDF",
-                       data=output.getvalue(),
-                       file_name="Murlidhar_Modified_PDF.pdf",
-                       mime="application/pdf")
+
+    st.download_button(
+        "📥 Download Modified PDF",
+        data=output.getvalue(),
+        file_name="Murlidhar_Modified_PDF.pdf",
+        mime="application/pdf"
+    )
